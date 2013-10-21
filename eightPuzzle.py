@@ -59,19 +59,19 @@ class eightPuzzle(StateSpace):
         # check for down
         if i + 3 < 9:
             new_state = self.state[0:i] + [self.state[i+3]] + self.state[i+1:i+3] + [self.state[i]] + self.state[i+4:]
-            States.append(new_state)
+            States.append(eightPuzzle('Move blank down', self.gval+1, new_state, self))
         # check for up
         if i - 3 > -1:
             new_state = self.state[0:i-3] + [self.state[i]] + self.state[i-2:i] + [self.state[i-3]] + self.state[i+1:]
-            States.append(new_state)
+            States.append(eightPuzzle('Move blank up', self.gval+1, new_state, self))
         # check for right:
         if (i % 3) + 1 < 3:
             new_state = self.state[0:i] + [self.state[i+1]] + [self.state[i]] + self.state[i+2:]
-            States.append(new_state)
-        # check for right
+            States.append(eightPuzzle('Move blank right', self.gval+1, new_state, self))
+        # check for left
         if (i % 3) - 1 > -1:
             new_state = self.state[0:i-1] + [self.state[i]] + [self.state[i-1]] + self.state[i+1:]
-            States.append(new_state)
+            States.append(eightPuzzle('Move blank left', self.gval+1, new_state, self))
         return States
     
     def hashable_state(self) :
@@ -112,7 +112,7 @@ def eightPuzzle_set_goal(state):
 def eightPuzzle_goal_fn(state):
 #Assume that the goal is a fully specified state.
 #<<<8-Puzzle: your implementation of the goal test function below
-    return state == eightPuzzle.goal_state
+    return state.state == eightPuzzle.goal_state
 #>>>8-Puzzle: your implementation of the goal test function above
 
 def h0(state):
@@ -125,7 +125,11 @@ def h_misplacedTiles(state):
     #not in their goal position 
 
 #<<<8-Puzzle: your implementation of this function below
-
+    misplaced_tiles = 0
+    for i in range(0,9):
+        if (state.state[i] != eightPuzzle.goal_state[i] and state.state[i] != 0):
+            misplaced_tiles += 1
+    return misplaced_tiles
 #>>>8-Puzzle: your implementation of this function above
     
 def h_MHDist(state):
@@ -136,9 +140,14 @@ def h_MHDist(state):
     #and that has to be in row i" j" in the goal is defined to be
     #  abs(i - i") + abs(j - j")
 #<<<8-Puzzle: your implementation of this function below
-
+    index_to_cordinate = [[1,1], [1,2], [1,3], [2,1], [2,2], [2,3], [3,1], [3,2], [3,3]]
+    distance = 0
+    for i in range(0,9):
+        index_actual = eightPuzzle.goal_state.index(state.state[i])
+        if (index_actual != i and state.state[i] != 0):
+            distance += abs(index_to_cordinate[i][0] - index_to_cordinate[index_actual][0]) + abs(index_to_cordinate[i][1] - index_to_cordinate[index_actual][1])
+    return distance
 #>>>8-Puzzle: your implementation of this function above
-
 
 
 #<<<8-Puzzle: Make sure the sample code below works when it is uncommented

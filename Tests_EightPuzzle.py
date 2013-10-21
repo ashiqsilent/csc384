@@ -10,8 +10,8 @@ eightPuzzle_set_goal([1, 2, 3, 8, 0, 4, 7, 6, 5])
 # Easy
 s2 = eightPuzzle("START", 0, [1, 3, 4, 8, 6, 2, 7, 0, 5])
 
-print("===========Test 1, EASY, ASTAR, h_MHDist==============")
-se.search(s2, eightPuzzle_goal_fn, h_MHDist)
+#print("===========Test 1, EASY, ASTAR, h_MHDist==============")
+#se.search(s2, eightPuzzle_goal_fn, h_MHDist)
 
 # Master solution Results (edited)
 
@@ -43,13 +43,13 @@ se.search(s2, eightPuzzle_goal_fn, h_MHDist)
 ## ----------------------------
 ## Search time = 0.03125, nodes expanded = 14, states generated = 19, states cycle check pruned = 5
 
-#print("======================================================")
+print("======================================================")
 
-## Medium 1
-#s3 = eightPuzzle("START", 0, [2, 8, 1, 0, 4, 3, 7, 6, 5])
+# Medium 1
+s3 = eightPuzzle("START", 0, [2, 8, 1, 0, 4, 3, 7, 6, 5])
 
-#print("===========Test 1, MEDIUM 1, ASTAR, h_MHDist==============")
-#se.search(s3, eightPuzzle_goal_fn, h_MHDist)
+print("===========Test 1, MEDIUM 1, ASTAR, h_MHDist==============")
+se.search(s3, eightPuzzle_goal_fn, h_MHDist)
 
 ## Master solution Results (edited)
 ## Search Successful! Solution cost = 9
