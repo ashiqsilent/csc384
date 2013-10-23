@@ -62,10 +62,11 @@ class bicycle(StateSpace):
     def hashable_state(self) :
         #Return a hashable data item representing the state. 
         #>>>Implement hashable_state
-
+        print (self.current_location, self.current_time, self.profit, self.job_done, "gval={}, id={}, pid={}, profit={}".format(self.gval, self.index, self.parent.index, self.profit))        
+        if not self:
+            return ()
+        return (self.current_location, self.current_time, self.profit, self.job_done, "gval={}, id={}".format(self.gval, self.index))
         #<<<: Your hashable_state code above
-        print (self.current_location, self.current_time, self.profit, self.job_done, "gval={}, id={}, pid={}".format(self.gval, self.index, self.parent.index))
-
     def print_state(self):
     #>>> Implement a print state function. Output enough information
     #    so that you can trace the search during debugging.
@@ -79,7 +80,7 @@ class bicycle(StateSpace):
     #<<<: Your print_state code above.
         
 bicycle.map_list = []
-bicycle.goal_state = False
+#bicycle.goal_state = False
 bicycle.max_profit = 0
 
 def h0(state):
@@ -89,6 +90,7 @@ def h0(state):
 #<<<: Implement an heuristic function. Use the name h1
 def h1(state):
     '''Logisitics Heuristic 1'''
+    bicycle.max_profit = max(bicycle.max_profit, total_profit(state))
     return 0
 #>>>
 
@@ -97,7 +99,7 @@ def h1(state):
 #   implementation.
 
 def bicycle_goal_fn(state):
-    return state.job_list == []
+    return state.job_list == [] and total_profit(state) >= bicycle.max_profit
 
 def make_start_state(map, job_list):
     '''Input a map list and a job_list. Return a bicycle StateSpace object
@@ -188,7 +190,9 @@ def solve(bicycle_start_state):
 #
     se = SearchEngine("astar", "none")
     se.trace_off();
-    s = se.search(bicycle_start_state, bicycle_goal_fn, h0)    
+    s = se.search(bicycle_start_state, bicycle_goal_fn, h1) 
+    if not s:
+        return []
     answer = []
     while s.parent:
         answer = [[s.action, s.parent.current_location, s.parent.current_time, s.current_location, s.current_time, s.profit]] + answer
@@ -205,7 +209,8 @@ def journey_time(locA, locB):
 
 def calculate_profit(job, time):
     for t in job:
-        if time <= t[0]:
+        v = (time <= t[0])
+        if v:
             return t[1]
     return 0
 
@@ -216,3 +221,9 @@ def format_time(time):
         return floor(time) + 1 + (minutes - 0.6)
     return time
         
+def total_profit(state):
+    profit = 0
+    while state:
+        profit += state.profit
+        state = state.parent
+    return profit
