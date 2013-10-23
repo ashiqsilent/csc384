@@ -3,7 +3,7 @@
 
 from eightPuzzle import *
 
-se = SearchEngine('astar', 'full')
+se = SearchEngine('astar', 'none')
 
 # Test Group 1
 eightPuzzle_set_goal([1, 2, 3, 8, 0, 4, 7, 6, 5])

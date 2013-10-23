@@ -6,5 +6,3 @@ s = [["Job1", "locA", 8.00, "locC",[8.30, 25], [9.30, 20], [10.00, 10], [11.00, 
 
 solve(make_start_state(a, s))
 
-print bicycle.max_profit
-

@@ -28,6 +28,7 @@ class bicycle(StateSpace):
         """
         #init the base class members.
         StateSpace.__init__(self, action, gval, parent)
+        self.gval = gval
         self.job_list = job_list
         self.current_time = current_time
         self.profit = profit
@@ -45,23 +46,27 @@ class bicycle(StateSpace):
                 new_job_list = self.job_list[0:]
                 new_job_list.remove(job)
                 location = job[3]
-                time = job[2] + journey_time(job[1], job[3])
+                time = format_time(job[2] + journey_time(job[1], job[3]))
+                if time > 19:
+                    continue
                 profit = calculate_profit(job[4:], time)
-                States.append(bicycle("Complete " + job[0], self.gval+1, new_job_list, location, time, profit, job[0], self))
+                gval = job[4][1] - profit + self.gval
+                States.append(bicycle("Complete " + job[0], gval, new_job_list, location, time, profit, job[0], self))
         # at the end of some job
         else:
             for job in self.job_list:
                 new_job_list = self.job_list[0:]
                 new_job_list.remove(job)
                 location = job[3]
-                t1 = self.parent.current_time
-                t2 = journey_time(self.parent.current_location, job[1])
                 if self.current_time > job[2]:
-                    time = self.current_time + journey_time(self.current_location, job[1]) + journey_time(job[1], job[3])
+                    time = format_time(self.current_time + journey_time(self.current_location, job[1]) + journey_time(job[1], job[3]))
                 else:
-                    time = job[2] + journey_time(job[1], job[3])
+                    time = format_time(job[2] + journey_time(job[1], job[3]))
+                if time > 19:
+                    continue
                 profit = calculate_profit(job[4:], time)
-                States.append(bicycle("Complete " + job[0], self.gval+1, new_job_list, location, time, profit, job[0], self))
+                gval = job[4][1] - profit + self.gval
+                States.append(bicycle("Complete " + job[0], gval, new_job_list, location, time, profit, job[0], self))
         return States
 #>>>: Your successor state function code above
 
@@ -71,14 +76,14 @@ class bicycle(StateSpace):
         #>>>Implement hashable_state
 
         #<<<: Your hashable_state code above
-        print (self.current_location, self.current_time, self.profit, self.job_done, "p_time="+str(self.parent.current_time), "p_loc="+self.parent.current_location)
+        print (self.current_location, self.current_time, self.profit, self.job_done, "gval="+str(self.gval))
 
     def print_state(self):
     #>>> Implement a print state function. Output enough information
     #    so that you can trace the search during debugging.
 
     #<<<: Your print_state code above.
-        print "Action = " + self.action + " completion time =" + str(self.current_time) + " profit: " + str(self.profit)
+        print "Action = " + self.action + " completion time =" + str(self.current_time) + " profit: " + str(self.profit) + "gval="+str(self.gval)
         
 bicycle.map_list = []
 bicycle.goal_state = False
@@ -102,20 +107,6 @@ def h1(state):
 #<<<Implement these two functions which will define an interface to your
 #   search space routines and allow us to automatically test your
 #   implementation.
-
-def journey_time(locA, locB):
-    if locA == locB:
-        return 0.0
-    for loc in bicycle.map_list[1]:
-        if(locA in loc) and (locB in loc):
-            return loc[2] / 100.0
-    return 0.0
-
-def calculate_profit(job, time):
-    for t in job:
-        if time <= t[0]:
-            return t[1]
-    return 0
 
 def bicycle_goal_fn(state):
     return state.job_list == [] and h1(state) >= bicycle.max_profit
@@ -207,8 +198,37 @@ def solve(bicycle_start_state):
 #   ['Job2', 'locD', 9.20, 'locC', 10:10, 25]
 # ]
 #
-    se = SearchEngine("astar")
+    se = SearchEngine("astar", "none")
     se.trace_off();
     s = se.search(bicycle_start_state, bicycle_goal_fn, h1)
+    
+    answer = []
+    while s != None:
+        part = [s.action, "time_completed="+str(s.current_time), "profit="+str(s.profit)]
+        answer.append(part)
+        s = s.parent
+    answer.pop()
+    answer.reverse()
+    print answer
+    
+def journey_time(locA, locB):
+    if locA == locB:
+        return 0.0
+    for loc in bicycle.map_list[1]:
+        if(locA in loc) and (locB in loc):
+            return loc[2] / 100.0
+    return 0.0
 
+def calculate_profit(job, time):
+    for t in job:
+        if time <= t[0]:
+            return t[1]
+    return 0
 
+def format_time(time):
+    
+    minutes = time - floor(time)    
+    if minutes > 0.59:
+        return floor(time) + 1 + (minutes - 0.6)
+    return time
+        
