@@ -54,7 +54,7 @@ class bicycle(StateSpace):
                 continue
             profit = calculate_profit(job[4:], time)
             gval = job[4][1] - profit + self.gval
-            States.append(bicycle("Complete " + job[0], gval, new_job_list, location, round(time, 2), profit, job[0], self))
+            States.append(bicycle(job[0], gval, new_job_list, location, round(time, 2), profit, job[0], self))
         return States
 #>>>: Your successor state function code above
 
@@ -89,12 +89,7 @@ def h0(state):
 #<<<: Implement an heuristic function. Use the name h1
 def h1(state):
     '''Logisitics Heuristic 1'''
-    profit = 0
-    while state != None:
-        profit += state.profit
-        state = state.parent
-    bicycle.max_profit = max(bicycle.max_profit, profit)
-    return profit
+    return 0
 #>>>
 
 #<<<Implement these two functions which will define an interface to your
@@ -102,7 +97,7 @@ def h1(state):
 #   implementation.
 
 def bicycle_goal_fn(state):
-    return state.job_list == [] and h1(state) >= bicycle.max_profit
+    return state.job_list == []
 
 def make_start_state(map, job_list):
     '''Input a map list and a job_list. Return a bicycle StateSpace object
@@ -193,16 +188,12 @@ def solve(bicycle_start_state):
 #
     se = SearchEngine("astar", "none")
     se.trace_off();
-    s = se.search(bicycle_start_state, bicycle_goal_fn, h1)
-    
+    s = se.search(bicycle_start_state, bicycle_goal_fn, h0)    
     answer = []
-    while s != None:
-        part = [s.action, "time_completed="+str(s.current_time), "profit="+str(s.profit)]
-        answer.append(part)
+    while s.parent:
+        answer = [[s.action, s.parent.current_location, s.parent.current_time, s.current_location, s.current_time, s.profit]] + answer
         s = s.parent
-    answer.pop()
-    answer.reverse()
-    print answer
+    return answer
     
 def journey_time(locA, locB):
     if locA == locB:
