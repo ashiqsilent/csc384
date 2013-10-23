@@ -39,34 +39,20 @@ class bicycle(StateSpace):
 
 #<<<: Your successor state function code below
         States = []
-        
-        # when starting from home
-        if self.current_location == "HOME":
-            for job in self.job_list:
-                new_job_list = self.job_list[0:]
-                new_job_list.remove(job)
-                location = job[3]
+        for job in self.job_list:
+            new_job_list = self.job_list[0:]
+            new_job_list.remove(job)
+            location = job[3]
+            time = self.current_time + journey_time(self.current_location, job[1])
+            if time > job[2]:
+                time += format_time(journey_time(job[1], job[3]))
+            else:
                 time = format_time(job[2] + journey_time(job[1], job[3]))
-                if time > 19:
-                    continue
-                profit = calculate_profit(job[4:], time)
-                gval = job[4][1] - profit + self.gval
-                States.append(bicycle("Complete " + job[0], gval, new_job_list, location, time, profit, job[0], self))
-        # at the end of some job
-        else:
-            for job in self.job_list:
-                new_job_list = self.job_list[0:]
-                new_job_list.remove(job)
-                location = job[3]
-                if self.current_time > job[2]:
-                    time = format_time(self.current_time + journey_time(self.current_location, job[1]) + journey_time(job[1], job[3]))
-                else:
-                    time = format_time(job[2] + journey_time(job[1], job[3]))
-                if time > 19:
-                    continue
-                profit = calculate_profit(job[4:], time)
-                gval = job[4][1] - profit + self.gval
-                States.append(bicycle("Complete " + job[0], gval, new_job_list, location, time, profit, job[0], self))
+            if time > 19:
+                continue
+            profit = calculate_profit(job[4:], time)
+            gval = job[4][1] - profit + self.gval
+            States.append(bicycle("Complete " + job[0], gval, new_job_list, location, round(time, 2), profit, job[0], self))
         return States
 #>>>: Your successor state function code above
 
@@ -76,14 +62,19 @@ class bicycle(StateSpace):
         #>>>Implement hashable_state
 
         #<<<: Your hashable_state code above
-        print (self.current_location, self.current_time, self.profit, self.job_done, "gval="+str(self.gval))
+        print (self.current_location, self.current_time, self.profit, self.job_done, "gval={}, id={}, pid={}".format(self.gval, self.index, self.parent.index))
 
     def print_state(self):
     #>>> Implement a print state function. Output enough information
     #    so that you can trace the search during debugging.
-
+        job_list = ""
+        for job in self.job_list:
+            job_list += str(job) + "\n"
+        if self.parent:
+            print "Action= \"{}\", S{}, g-value = {}, (From S{})\nTime: {}, Location: {}\nPending Jobs:\n{}".format(self.action, self.index, self.gval, self.parent.index, self.current_time, self.current_location, job_list.strip())
+        else:
+            print "Action= \"{}\", S{}, g-value = {}, (Initial State)\nTime: {}, Location: {}\nPending Jobs:\n{}".format(self.action, self.index, self.gval, self.current_time, self.current_location, job_list.strip())
     #<<<: Your print_state code above.
-        print "Action = " + self.action + " completion time =" + str(self.current_time) + " profit: " + str(self.profit) + "gval="+str(self.gval)
         
 bicycle.map_list = []
 bicycle.goal_state = False
