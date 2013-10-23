@@ -1,3 +1,6 @@
+# Name : Md Ashiqur Rahman
+# Student Number : 998419242
+
 #Look for <<<...>>> tags in this file. These tags indicate changes in the 
 #file to implement the required routines. Some mods have been made some others
 #you have to make. Don't miss addressing each <<<...>>> tag in the file!
@@ -152,27 +155,27 @@ def h_MHDist(state):
 
 #<<<8-Puzzle: Make sure the sample code below works when it is uncommented
 
-# se = SearchEngine('astar', 'none')
-# s0 = eightPuzzle("START", 0, [1, 0, 2, 3, 4, 5, 6, 7, 8])
-# eightPuzzle_set_goal([0, 1, 2, 3, 4, 5, 6, 7, 8])
+se = SearchEngine('astar', 'none')
+s0 = eightPuzzle("START", 0, [1, 0, 2, 3, 4, 5, 6, 7, 8])
+eightPuzzle_set_goal([0, 1, 2, 3, 4, 5, 6, 7, 8])
+se.trace_on(1)
+print '1'
+se.search(s0, eightPuzzle_goal_fn, h0)
 
-# print '1'
-# se.search(s0, eightPuzzle_goal_fn, h0)
+#print '2'
+#se.search(s0, eightPuzzle_goal_fn, h_misplacedTiles)
 
-# print '2'
-# se.search(s0, eightPuzzle_goal_fn, h_misplacedTiles)
+#print '3'
+#s1 = eightPuzzle("START", 0, [8, 7, 6, 0, 4, 1, 2, 5, 3])
+#se.search(s1, eightPuzzle_goal_fn, h_MHDist)
 
-# print '3'
-# s1 = eightPuzzle("START", 0, [8, 7, 6, 0, 4, 1, 2, 5, 3])
-# se.search(s1, eightPuzzle_goal_fn, h_MHDist)
-
-# print '4'
-# se.set_strategy('astar', 'full')
-# se.search(s1, eightPuzzle_goal_fn, h_MHDist)
+#print '4'
+#se.set_strategy('astar', 'full')
+#se.search(s1, eightPuzzle_goal_fn, h_MHDist)
 
 ## Note that this problem can take a long time...30 seconds of CPU on my mac-mini.
-# print '5'
-# se.search(s1, eightPuzzle_goal_fn, h_misplacedTiles)
+#print '5'
+#se.search(s1, eightPuzzle_goal_fn, h_misplacedTiles)
 
 
 #>>>8-Puzzle: Make sure the sample code above works when it is uncommented

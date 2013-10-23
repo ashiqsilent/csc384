@@ -1,3 +1,6 @@
+# Name : Md Ashiqur Rahman
+# Student Number : 998419242
+
 #Look for <<<...>>> tags in this file. These tags indicate changes in the 
 #file to implement the required routines. 
 
@@ -18,20 +21,45 @@ from math import *
 class bicycle(StateSpace):
     StateSpace.n = 0
 
-    def __init__(self, ... 
+    def __init__(self, action, gval, job_list, end_location, end_time, profit, job_completed, start_time, start_position, parent=None): 
         """
         Initialize a bicycle search state object. Take as input the information
         you need to build a new state. 
         """
         #init the base class members.
         StateSpace.__init__(self, action, gval, parent)
-
-
+        self.job_list = job_list
+        self.end_location = end_location
+        self.end_time = end_time
+        self.profit = profit
+        self.job_completed = job_completed
+        self.start_time = start_time
+        self.start_position = start_position
     def successors(self) :
         """Implement the transitions of the bicycle search space"""
 
 #<<<: Your successor state function code below
-
+        States = []
+        
+        # when starting from home
+        if self.end_location == "HOME":
+            for job in self.job_list:
+                new_job_list = self.job_list[0:]
+                new_job_list.remove(job)
+                cur_time = journey_time(job[1], job[3]) + job[2]
+                money = calculate_profit(job[4:], cur_time)
+                States.append(bicycle("Complete " + job[0], self.gval+1, new_job_list, job[3], cur_time, money, job[0], job[2], "home", self))
+                
+        # at the end of some job
+        else:
+            for job in self.job_list:
+                new_job_list = self.job_list[0:]
+                new_job_list.remove(job)
+                cur_time = self.end_time + journey_time(self.end_location, job[1]) + journey_time(job[1], job[3])
+                money = calculate_profit(job[4:], cur_time)
+                States.append(bicycle("Complete " + job[0], self.gval+1, new_job_list, job[3], cur_time, money, job[0], self.parent.end_time, self.parent.start_position, self))
+                
+        return States
 #>>>: Your successor state function code above
 
 
@@ -40,13 +68,18 @@ class bicycle(StateSpace):
         #>>>Implement hashable_state
 
         #<<<: Your hashable_state code above
-
+        print tuple([self.job_list, self.end_location, self.profit])
 
     def print_state(self):
     #>>> Implement a print state function. Output enough information
     #    so that you can trace the search during debugging.
 
     #<<<: Your print_state code above.
+        print ""
+        
+bicycle.map_list = []
+bicycle.goal_state = False
+bicycle.max_profit = 0
 
 def h0(state):
     '''Null Heuristc'''
@@ -55,13 +88,29 @@ def h0(state):
 #<<<: Implement an heuristic function. Use the name h1
 def h1(state):
     '''Logisitics Heuristic 1'''
-
+    profit = 0
+    while state != None:
+        profit += state.profit
+        state = state.parent
+    bicycle.max_profit = max(bicycle.max_profit, profit)
+    return profit
 #>>>
 
 #<<<Implement these two functions which will define an interface to your
 #   search space routines and allow us to automatically test your
 #   implementation.
 
+def journey_time(locA, locB):
+    for loc in bicycle.map_list[1]:
+        if(locA in loc) and (locB in loc):
+            return loc[2] / 100.0
+    return 0.0
+
+def calculate_profit(job, time):
+    for t in job:
+        if time <= t[0]:
+            return t[1]
+    return 0
 
 def make_start_state(map, job_list):
     '''Input a map list and a job_list. Return a bicycle StateSpace object
@@ -120,7 +169,11 @@ def make_start_state(map, job_list):
 # See the assignment specification for more information about what these
 # lists specify. 
 
+    bicycle.map_list = map
+    return bicycle("START", 0, job_list, "HOME", "Before Start", 0, "", "", "")
 
+def bicycle_goal_fn(state):
+    return state.job_list == [] and h1(state) >= bicycle.max_profit
 
 def solve(bicycle_start_state):
     '''Compute a delivery schedule given an initial bicycle search state that has been
@@ -149,3 +202,8 @@ def solve(bicycle_start_state):
 #   ['Job2', 'locD', 9.20, 'locC', 10:10, 25]
 # ]
 #
+    se = SearchEngine("astar", "none")
+    se.trace_on(1);
+    s = se.search(bicycle_start_state, bicycle_goal_fn, h1)
+
+
