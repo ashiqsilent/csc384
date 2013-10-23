@@ -44,8 +44,10 @@ class bicycle(StateSpace):
             new_job_list.remove(job)
             location = job[3]
             time = self.current_time + journey_time(self.current_location, job[1])
+            time = format_time(time)
             if time > job[2]:
                 time += format_time(journey_time(job[1], job[3]))
+                time = format_time(time)
             else:
                 time = format_time(job[2] + journey_time(job[1], job[3]))
             if time > 19:
