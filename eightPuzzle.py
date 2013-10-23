@@ -155,12 +155,12 @@ def h_MHDist(state):
 
 #<<<8-Puzzle: Make sure the sample code below works when it is uncommented
 
-se = SearchEngine('astar', 'none')
-s0 = eightPuzzle("START", 0, [1, 0, 2, 3, 4, 5, 6, 7, 8])
-eightPuzzle_set_goal([0, 1, 2, 3, 4, 5, 6, 7, 8])
-se.trace_on(1)
-print '1'
-se.search(s0, eightPuzzle_goal_fn, h0)
+#se = SearchEngine('astar', 'none')
+#s0 = eightPuzzle("START", 0, [1, 0, 2, 3, 4, 5, 6, 7, 8])
+#eightPuzzle_set_goal([0, 1, 2, 3, 4, 5, 6, 7, 8])
+#se.trace_on(1)
+#print '1'
+#se.search(s0, eightPuzzle_goal_fn, h0)
 
 #print '2'
 #se.search(s0, eightPuzzle_goal_fn, h_misplacedTiles)
