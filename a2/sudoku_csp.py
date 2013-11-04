@@ -87,7 +87,9 @@ def sudoku_enforce_gac_model_1(initial_sudoku_board):
     '''
 
 #<<<your implemenation of model_1  below
-
+    # 9X9 square matrix representing the board
+    variables = create_variables(initial_sudoku_board)
+    constraints = create_constraints(variables)
 #>>>your implemenation of model_1 above
 
 
@@ -120,3 +122,18 @@ def sudoku_enforce_gac_model_2(initial_sudoku_board):
 
 #>>>your implemenation of model_2 above
 
+def create_variables(board):
+    i = 1
+    variable_matrix = []
+    for row in board:
+        j = 1
+        variable_row = []
+        for cell in row:
+            if cell == 0:
+                variable_row.append(Variable("V{}{}".format(i, j), range(1,10)))
+            else:
+                variable_row.append(Variable("V{}{}".format(i, j), [cell]))
+            j += 1
+        variable_matrix.append(variable_row)
+        i += 1
+    return variable_matrix

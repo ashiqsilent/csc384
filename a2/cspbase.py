@@ -138,10 +138,10 @@ class Constraint:
            determines what variable each value in the tuple corresponds to'''
         i = 0
         for val in t:
-             var = self.scope[i]
-             if not var.in_cur_domain(val):
+            var = self.scope[i]
+            if not var.in_cur_domain(val):
                 return False
-             i = i + 1
+            i = i + 1
         return True
 
     def has_support(self, var, val):
