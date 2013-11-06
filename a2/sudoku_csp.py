@@ -1,5 +1,7 @@
-from cspbase import *
+# Name: Md Ashiqur Rahman
+# Student Number: 998419242
 
+from cspbase import *
 
 def enforce_gac(constraint_list):
     '''Input a list of constraint objects, each representing a constraint, then 
@@ -10,7 +12,19 @@ def enforce_gac(constraint_list):
        the constraints passed to it.'''
 
 #<<<your implemenation of enforce_gac below
-
+    while (constraint_list):
+        c = constraint_list.pop()
+        for var in c.scope:
+            for val in var.domain():
+                if not c.has_support(var, val):
+                    if val in var.cur_domain():
+                        var.prune_value(val)
+                    if var.domain() == []:
+                        # DWO found
+                        return False
+    return True
+                    
+        
 #>>>your implemenation of enforce_gac above
 
                             
@@ -89,7 +103,12 @@ def sudoku_enforce_gac_model_1(initial_sudoku_board):
 #<<<your implemenation of model_1  below
     # 9X9 square matrix representing the board
     variables = create_variables(initial_sudoku_board)
-    constraints = create_constraints(variables)
+    constraints = create_binary_constraints(variables)
+    if not enforce_gac(constraints):
+        print "something wrong"
+    return variables
+
+        
     
 #>>>your implemenation of model_1 above
 

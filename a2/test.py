@@ -1,4 +1,5 @@
 from cspbase import *
+from sudoku_csp import *
 
 def create_variables(board):
     i = 1
@@ -72,9 +73,6 @@ def create_binary_constraints(variables):
 
 board = [[0,0,2,0,9,0,0,6,0], [0,4,0,0,0,1,0,0,8], [0,7,0,4,2,0,0,0,3], [5,0,0,0,0,0,3,0,0], [0,0,1,0,6,0,5,0,0],  [0,0,3,0,0,0,0,0,6], [1,0,0,0,5,7,0,4,0], [6,0,0,9,0,0,0,2,0], [0,2,0,0,8,0,1,0,0]]
 
-var = create_variables(board)
+var = sudoku_enforce_gac_model_1(board)
 
-cons = create_binary_constraints(var)
 
-for c in cons:
-    print c.name
