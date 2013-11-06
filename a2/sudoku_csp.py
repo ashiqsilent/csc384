@@ -12,14 +12,16 @@ def enforce_gac(constraint_list):
        the constraints passed to it.'''
 
 #<<<your implemenation of enforce_gac below
-    while (constraint_list):
-        c = constraint_list.pop()
+    # make a copy of the parameter since we will use that as a queue
+    constraints = constraint_list[0:]
+    while (constraints):
+        c = constraints.pop()
         for var in c.scope:
             for val in var.domain():
                 if not c.has_support(var, val):
                     if val in var.cur_domain():
                         var.prune_value(val)
-                    if var.domain() == []:
+                    if var.cur_domain() == []:
                         # DWO found
                         return False
     return True
@@ -106,7 +108,7 @@ def sudoku_enforce_gac_model_1(initial_sudoku_board):
     constraints = create_binary_constraints(variables)
     if not enforce_gac(constraints):
         print "something wrong"
-    return variables
+    return [variables,constraints]
 
         
     

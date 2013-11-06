@@ -73,6 +73,17 @@ def create_binary_constraints(variables):
 
 board = [[0,0,2,0,9,0,0,6,0], [0,4,0,0,0,1,0,0,8], [0,7,0,4,2,0,0,0,3], [5,0,0,0,0,0,3,0,0], [0,0,1,0,6,0,5,0,0],  [0,0,3,0,0,0,0,0,6], [1,0,0,0,5,7,0,4,0], [6,0,0,9,0,0,0,2,0], [0,2,0,0,8,0,1,0,0]]
 
+# sudoku_enforce_gac_model_1 is now returning wrong stuff just to have 
+# play around with the algorithm
 var = sudoku_enforce_gac_model_1(board)
+var[0][0][0].prune_value(3)
+# this means we will have to call enforce_gac multiple times. plus we probably should not run enforce gac on the whole cons list. But we should run it only on the cons with var v
+f = enforce_gac(var[1])
 
+result=""
+for row in var[0]:
+    for cell in row:
+        result += "{} ".format(cell.cur_domain())
+    result += "\n"
+print result.strip()
 
