@@ -110,7 +110,6 @@ def sudoku_enforce_gac_model_1(initial_sudoku_board):
     # 9X9 square matrix representing the board
     variables = create_variables(initial_sudoku_board)
     constraints = create_binary_constraints(variables)
-    i = 0
     if not enforce_gac(constraints):
         print "unsolvable sudoku"
     return show_solution(variables)
@@ -141,7 +140,11 @@ def sudoku_enforce_gac_model_2(initial_sudoku_board):
      
     
 #<<<your implemenation of model_2  below
-
+    variables = create_variables(initial_sudoku_board)
+    constraints = create_alldiff_constraints(variables, initial_sudoku_board)
+    if not enforce_gac(constraints):
+        print "unsolvable sudoku"
+    return show_solution(variables)    
 #>>>your implemenation of model_2 above
 
 
@@ -161,7 +164,7 @@ def create_variables(board):
         i += 1
     return variable_matrix
 
-def create_tuples(dom1, dom2):
+def create_binary_tuples(dom1, dom2):
     tuples = []
     for v1 in dom1:
         for v2 in dom2:
@@ -196,7 +199,7 @@ def add_binary_constraints(variables):
     while i < len(variables):
         var2 = variables[i]
         c = Constraint("C_{}{}".format(var1.name, var2.name), [var1, var2])
-        c.add_satisfying_tuples(create_tuples(c.scope[0].domain(), c.scope[1].domain()))
+        c.add_satisfying_tuples(create_binary_tuples(c.scope[0].domain(), c.scope[1].domain()))
         constraints.append(c)
         i += 1
     return constraints
@@ -223,3 +226,75 @@ def show_solution(variables):
             row_solution.append(cell.cur_domain())
         solution.append(row_solution)
     return solution
+
+def create_constraints(variables, board):
+    constraints = []
+    # create the row constraints
+    i = 0
+    for row in variables:
+        c = Constraint("C_Row{}".format(i+1), row)
+        c.add_satisfying_tuples(create_alldiff_tuples(board[i]))
+        constraints.append(c)
+        i += 1
+    # create the column constraints
+    columns = find_columns(variables)
+    i = 1
+    for col in columns:
+        c = Constraint("C_Col{}".format(i), col)
+        c.add_satisfying_tuples(create_alldiff_tuples(convert_var_to_num(col)))
+        constraints.append(c)
+        i += 1
+    # create the column constraints
+    i = 1
+    sub_squares = find_sub_square(variables)
+    for ss in sub_squares:
+        c = Constraint("C_Col{}".format(i), col)
+        c.add_satisfying_tuples(create_alldiff_tuples(convert_var_to_num(col)))
+        constraints.append(c)
+        i += 1    
+    
+    return constraints
+
+def create_alldiff_tuples(values):
+    to_permute = []
+    for num in range(1,10):
+        if num not in values:
+            to_permute.append(num)
+    permutations = all_permutaions(to_permute)
+    tuples = []
+    for perm in permutations:
+        tup = values[:]
+        for val in perm:
+            tup[tup.index(0)] = val
+        tuples.append(tup)
+    return tuples
+
+def all_permutaions(l):
+    queue = [l]
+    result = [l]
+    while queue and len(result) < math.factorial(len(l)):
+        member = queue.pop(0)
+        i = 0
+        while i < len(member) - 1:
+            j = i + 1
+            while j < len(l):
+                permute = member[0:i]+[member[j]] + member[i+1:j] + [member[i]] + member[j+1:]
+                if permute not in result:
+                    result.append(permute)
+                    queue.append(permute)
+                j += 1
+            i += 1
+    return result
+
+def convert_var_to_num(variables):
+    numbers = []
+    for var in variables:
+        dom = var.domain()
+        if len(dom) == 1:
+            numbers.append(dom[0])
+        else:
+            numbers.append(0)
+    return numbers
+
+def find_columns(variables):
+    
