@@ -55,4 +55,10 @@ bad_b = [[1,2,3,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,4,5,6],[0,0,0,0,0,
 
 var = create_variables(bad_b)
 c = create_alldiff_constraints(var, bad_b)
-#print_solution(var)
+ss = [c[18]]
+r = [c[0]]
+col = [c[9]]
+enforce_gac(ss)
+#enforce_gac(r)
+#enforce_gac(col)
+print_solution(show_solution(var))
