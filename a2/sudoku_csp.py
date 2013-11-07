@@ -2,7 +2,7 @@
 # Student Number: 998419242
 
 from cspbase import *
-import math
+import math, itertools
 
 def enforce_gac(constraint_list):
     '''Input a list of constraint objects, each representing a constraint, then 
@@ -13,11 +13,8 @@ def enforce_gac(constraint_list):
        the constraints passed to it.'''
 
 #<<<your implemenation of enforce_gac below
-    # make a copy of the parameter since we will use that as a queue
-    constraints = constraint_list[0:]
     pruned = False
-    while (constraints):
-        c = constraints.pop(0)
+    for c in constraint_list:
         for var in c.scope:
             for val in var.cur_domain():
                 if not c.has_support(var, val):
@@ -228,7 +225,7 @@ def show_solution(variables):
         solution.append(row_solution)
     return solution
 
-# not working right now....needs to fix it
+# not working right now....need to fix it
 def create_alldiff_constraints(variables, board):
     constraints = []
     # create the row constraints
@@ -263,7 +260,7 @@ def create_alldiff_tuples(values):
     for num in range(1,10):
         if num not in values:
             to_permute.append(num)
-    permutations = all_permutaions(to_permute)
+    permutations = all_permutations(to_permute)
     tuples = []
     for perm in permutations:
         tup = values[:]
@@ -272,22 +269,9 @@ def create_alldiff_tuples(values):
         tuples.append(tup)
     return tuples
 
-def all_permutaions(l):
-    queue = [l]
-    result = [l]
-    while queue and len(result) < math.factorial(len(l)):
-        member = queue.pop(0)
-        i = 0
-        while i < len(member) - 1:
-            j = i + 1
-            while j < len(l):
-                permute = member[0:i]+[member[j]] + member[i+1:j] + [member[i]] + member[j+1:]
-                if permute not in result:
-                    result.append(permute)
-                    queue.append(permute)
-                j += 1
-            i += 1
-    return result
+def all_permutations(to_permute):
+
+    return itertools.permutations(to_permute)
 
 def convert_var_to_num(variables):
     numbers = []
