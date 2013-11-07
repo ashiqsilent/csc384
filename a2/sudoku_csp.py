@@ -25,7 +25,7 @@ def enforce_gac(constraint_list):
                         return False
     # This means the solution is still incomplete so run enforce_gac again
     if pruned:    
-        enforce_gac(constraint_list)
+        return enforce_gac(constraint_list)
     return True
                     
         
@@ -145,9 +145,15 @@ def sudoku_enforce_gac_model_2(initial_sudoku_board):
     return show_solution(variables)    
 #>>>your implemenation of model_2 above
 
+###################################################################################
 
 def create_variables(board):
+    '''Create 81 variable object each representing a cell in the sudoky board.
+    Assume the board is 9X9'''
+    # i is the row number and j is the column number of the variable
     i = 1
+    # Return the variables in the same format as the parameter. So
+    # variable matrix will also be 9X9 matrix
     variable_matrix = []
     for row in board:
         j = 1
@@ -163,6 +169,8 @@ def create_variables(board):
     return variable_matrix
 
 def create_binary_tuples(dom1, dom2):
+    '''dom1 and dom2 are list of ints. Return all possible combinations
+    of [v1, v2] s.t. v1 is in dom1 and v2 is in dom2 but v1 != v2.'''
     tuples = []
     for v1 in dom1:
         for v2 in dom2:
@@ -171,6 +179,7 @@ def create_binary_tuples(dom1, dom2):
     return tuples
 
 def extract_column(i, j, matrix):
+    '''Return the column starting at matrix[i][j] as a list'''
     col = [matrix[i][j]]
     i += 1
     while i < 9:
@@ -179,6 +188,7 @@ def extract_column(i, j, matrix):
     return col
 
 def extract_sub_square(i,j,matrix):
+    '''Return the sub_square starting at matrix[i][j] as a list'''
     sub_square = [matrix[i][j]]
     i += 1
     while i%3 != 0:
@@ -191,6 +201,9 @@ def extract_sub_square(i,j,matrix):
     return sub_square
 
 def add_binary_constraints(variables):
+    '''Variable is a one dimensional list of variable objects. Create 
+    constraint between the first variable and each of the remaining variables
+    and return them as a list'''
     constraints = []
     var1 = variables[0]
     i = 1
@@ -203,6 +216,8 @@ def add_binary_constraints(variables):
     return constraints
 
 def create_binary_constraints(variables):
+    '''Create all possible constraints between all the relevent pair of 
+    variables and return them as one big list'''
     constraints = []
     for row in variables:
         for cell in row:
@@ -217,6 +232,8 @@ def create_binary_constraints(variables):
     return constraints
 
 def show_solution(variables):
+    '''Find the cur_domain of each variable in variables and return then in 
+    the same format as variables'''
     solution = []
     for row in variables:
         row_solution = []
@@ -225,8 +242,10 @@ def show_solution(variables):
         solution.append(row_solution)
     return solution
 
-# not working right now....need to fix it
+################################################################################
+
 def create_alldiff_constraints(variables, board):
+    '''Create all 27 constraints as specified in model2 and return them as list'''
     constraints = []
     # create the row constraints
     i = 0
@@ -254,7 +273,6 @@ def create_alldiff_constraints(variables, board):
     
     return constraints
 
-
 def create_alldiff_tuples(values):
     to_permute = []
     for num in range(1,10):
@@ -270,7 +288,7 @@ def create_alldiff_tuples(values):
     return tuples
 
 def all_permutations(to_permute):
-
+    
     return itertools.permutations(to_permute)
 
 def convert_var_to_num(variables):
