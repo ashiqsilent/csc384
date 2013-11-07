@@ -33,10 +33,24 @@ def all_permutaions(l):
             i += 1
     return result
 
-def create_constraints(variables, board):
+def find_columns(matrix):
     
+    columns = []
+    j = 0
+    while j < 9:
+        columns.append(extract_column(0, j, matrix))
+        j += 1
+    return columns
+    
+
+def print_solution(solution):
+    for row in solution:
+        print row
 
 b1 = [[0,0,2,0,9,0,0,6,0], [0,4,0,0,0,1,0,0,8], [0,7,0,4,2,0,0,0,3], [5,0,0,0,0,0,3,0,0], [0,0,1,0,6,0,5,0,0],  [0,0,3,0,0,0,0,0,6], [1,0,0,0,5,7,0,4,0], [6,0,0,9,0,0,0,2,0], [0,2,0,0,8,0,1,0,0]]
 
-v = create_variables(b1)
-c.print_constraint_all()
+b2 = [[7, 0, 0, 1, 6, 0, 0, 0, 0],[3, 0, 0, 9, 0, 0, 0, 6, 0],[0, 0, 0, 8, 0, 0, 9, 2, 0],[0, 0, 6, 0, 1, 0, 0, 5, 0],[9, 0, 0, 0, 0, 0, 0, 0, 6],[0, 2, 0, 0, 3, 0, 7, 0, 0],[0, 1, 3, 0, 0, 2, 0, 0, 0],[0, 6, 0, 0, 0, 4, 0, 0, 8],[0, 0, 0, 0, 9, 1, 0, 0, 5]]
+
+var = create_variables(b1)
+
+c = create_alldiff_constraints(var, b1)

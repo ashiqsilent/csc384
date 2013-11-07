@@ -2,6 +2,7 @@
 # Student Number: 998419242
 
 from cspbase import *
+import math
 
 def enforce_gac(constraint_list):
     '''Input a list of constraint objects, each representing a constraint, then 
@@ -227,7 +228,8 @@ def show_solution(variables):
         solution.append(row_solution)
     return solution
 
-def create_constraints(variables, board):
+# not working right now....needs to fix it
+def create_alldiff_constraints(variables, board):
     constraints = []
     # create the row constraints
     i = 0
@@ -246,14 +248,15 @@ def create_constraints(variables, board):
         i += 1
     # create the column constraints
     i = 1
-    sub_squares = find_sub_square(variables)
+    sub_squares = find_sub_squares(variables)
     for ss in sub_squares:
-        c = Constraint("C_Col{}".format(i), col)
-        c.add_satisfying_tuples(create_alldiff_tuples(convert_var_to_num(col)))
+        c = Constraint("C_SS{}".format(i), ss)
+        c.add_satisfying_tuples(create_alldiff_tuples(convert_var_to_num(ss)))
         constraints.append(c)
         i += 1    
     
     return constraints
+
 
 def create_alldiff_tuples(values):
     to_permute = []
@@ -296,5 +299,32 @@ def convert_var_to_num(variables):
             numbers.append(0)
     return numbers
 
-def find_columns(variables):
+def find_columns(matrix):
+    columns = []
+    j = 0
+    while j < 9:
+        columns.append(extract_column(0, j, matrix))
+        j += 1
+    return columns
+
+def find_sub_squares(matrix):
+    sub_squares = []
+    i = 0
+    while i < 9:
+        j = 0
+        while j < 9:
+            sub_squares.append(find_sub_squares_helper(i, j, matrix))
+            j += 3
+        i += 3    
+    return sub_squares
     
+def find_sub_squares_helper(i, j, matrix):
+    ss = []
+    row = i
+    while row%3 != 0 or row <= i:
+        col = j
+        while col%3 != 0 or col <= j:
+            ss.append(matrix[row][col])
+            col += 1
+        row += 1
+    return ss
