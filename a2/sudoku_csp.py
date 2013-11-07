@@ -14,16 +14,20 @@ def enforce_gac(constraint_list):
 #<<<your implemenation of enforce_gac below
     # make a copy of the parameter since we will use that as a queue
     constraints = constraint_list[0:]
+    pruned = False
     while (constraints):
-        c = constraints.pop()
+        c = constraints.pop(0)
         for var in c.scope:
-            for val in var.domain():
+            for val in var.cur_domain():
                 if not c.has_support(var, val):
-                    if val in var.cur_domain():
-                        var.prune_value(val)
+                    var.prune_value(val)
+                    pruned = True
                     if var.cur_domain() == []:
                         # DWO found
                         return False
+    # This means the solution is still incomplete so run enforce_gac again
+    if pruned:    
+        enforce_gac(constraint_list)
     return True
                     
         
@@ -106,15 +110,11 @@ def sudoku_enforce_gac_model_1(initial_sudoku_board):
     # 9X9 square matrix representing the board
     variables = create_variables(initial_sudoku_board)
     constraints = create_binary_constraints(variables)
+    i = 0
     if not enforce_gac(constraints):
-        print "something wrong"
-    return [variables,constraints]
-
-        
-    
+        print "unsolvable sudoku"
+    return show_solution(variables)
 #>>>your implemenation of model_1 above
-
-
 
 ##############################
 
@@ -143,6 +143,7 @@ def sudoku_enforce_gac_model_2(initial_sudoku_board):
 #<<<your implemenation of model_2  below
 
 #>>>your implemenation of model_2 above
+
 
 def create_variables(board):
     i = 1
@@ -213,3 +214,12 @@ def create_binary_constraints(variables):
             sub_square = extract_sub_square(variables.index(row), row.index(cell), variables)
             constraints += add_binary_constraints(sub_square)
     return constraints
+
+def show_solution(variables):
+    solution = []
+    for row in variables:
+        row_solution = []
+        for cell in row:
+            row_solution.append(cell.cur_domain())
+        solution.append(row_solution)
+    return solution
