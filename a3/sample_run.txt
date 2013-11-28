@@ -1,0 +1,63 @@
+#Using Bayes net ``testQ4'' (see example_bn.py)
+
+###(a) What is the probablity of S given G='g'?
+G.set_evidence('g')
+VE(testQ4, S, [G], min_fill_ordering)
+#>>>[1.0, 0.0]
+##That is, P(s|g) = 1.0, P(-s|g) = 0.0
+
+###(b) What is the probability of G given S='s'?
+S.set_evidence('s')
+VE(testQ4, G, [S], min_fill_ordering)
+#>>[0.5, 0.5]
+
+###(c) What is the probability of G given S='-s'?
+S.set_evidence('-s')
+VE(testQ4, G, [S], min_fill_ordering)
+#>>[0.0, 1.0]
+
+#For (b) and (c) P(g|s) = 0.5, P(-g|s) = 0.5 
+#                P(g|-s) = 0.0, P(-g|-s) = 1.0
+
+###(d) Now we try two items in evidence, S='s' /\ W='w'
+###    and we want to compute the probability of G (given S='s' /\ W='w')
+S.set_evidence('s')
+W.set_evidence('w')
+VE(testQ4, G, [S,W], min_fill_ordering)
+#>>[0.5, 0.5]
+
+###(e) Similar to (d) but now W='-w'
+
+S.set_evidence('s')
+W.set_evidence('-w')
+VE(testQ4, G, [S,W], min_fill_ordering)
+#>>[0.5, 0.5]
+##i.e., P(g|s,-w) = 0.5, P(-g|s,-w) = 0.5
+
+###(f)
+S.set_evidence('-s')
+W.set_evidence('w')
+VE(testQ4, G, [S,W], min_fill_ordering)
+#>>[0.0, 1.0]
+##i.e., P(g|-s,w) = 0.0, P(-g|-s,w) = 1.0
+
+###(g)
+S.set_evidence('-s')
+W.set_evidence('-w')
+VE(testQ4, G, [S,W], min_fill_ordering)
+#>>[0.0, 1.0]
+##i.e., P(g|-s,-w) = 0.0, P(-g|-s,-w) = 1.0
+
+###(h)
+W.set_evidence('w')
+VE(testQ4, G, [W], min_fill_ordering)
+#>>[0.15265998457979954, 0.8473400154202004]
+
+##P(g|w) = 0.15, P(-g|w) = 0.84 (Note that numerical rounding issues occur)
+
+###(i)
+W.set_evidence('-w')
+VE(testQ4, G, [W], min_fill_ordering)
+#>>[0.01336753983256819, 0.9866324601674318]
+
+##P(g|-w) = 0.01, P(-g|w) = 0.99
