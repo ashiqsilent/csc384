@@ -396,22 +396,24 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
     for var in order:
         # get all the factors whose scope contains var
         factors_to_change = find_factors(factors, var)
+        flag = False
         if len(factors_to_change) > 1:
             # join the factors first and then sum out the variables
             new_factor = join_factors(factors_to_change)
-            new_factor = sum_out_factors(new_factor, var)
-        elif len(factors_to_change) == 1:
-            # no need to join because there is only one factor so just sum out 
-            # the variable 
-            new_factor = sum_out_factors(factors_to_change[0], var)
+            if len(new_factor.get_scope()) > 1:
+                new_factor = sum_out_factors(new_factor, var)
+                flag = True
         # Remove the factors that were changed
         [factors.remove(f) for f in factors_to_change]
-        # Add the new factor in factors
-        factors.append(new_factor)
+        if (flag):
+            # Add the new factor in factors
+            factors.append(new_factor)
     # join the remaining factors
-    factor = join_factors(factors)
+    if len(factors) > 1:
+        factor = join_factors(factors)
+    else:
+        factor = factors[0]
     # normalise the result
-    return factor.values
     alpha = sum(factor.values) * 1.0
     return [val/alpha for val in factor.values]
 #>>>Your implementation above
@@ -442,8 +444,10 @@ def restrict_factors(factors, evidenceVars):
         evidence = find_evidence(f.get_scope(), evidenceVars)
         if (evidence):
             new_factor = restrict_factors_helper(f, evidence)
-            factors[factors.index(f)] = new_factor
-              
+            if (new_factor):
+                factors[factors.index(f)] = new_factor
+            else:
+                factors.remove(f)
 def restrict_factors_helper(factor, evidence):
     '''Return a new factor object by changing the given factor according to the 
     evidence'''      
@@ -453,6 +457,8 @@ def restrict_factors_helper(factor, evidence):
         scope.remove(e)
         e.set_assignment(e.get_evidence())
         name = name.replace(repr(e), e.get_evidence())
+    if (len(scope) == 0):
+        return []
     new_factor = Factor(name, scope)
     recursive_restrict_variable(scope, new_factor, factor)
     return new_factor
