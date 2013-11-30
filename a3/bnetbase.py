@@ -403,6 +403,12 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
             if len(new_factor.get_scope()) > 1:
                 new_factor = sum_out_factors(new_factor, var)
                 flag = True
+        
+        elif len(factors_to_change) == 1:
+            #only one factor. so just sum out variable
+            if factors_to_change[0].get_scope() > 1:
+                new_factor = sum_out_factors(factors_to_change[0], var)
+                flag = True                
         # Remove the factors that were changed
         [factors.remove(f) for f in factors_to_change]
         if (flag):
@@ -415,6 +421,8 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
         factor = factors[0]
     # normalise the result
     alpha = sum(factor.values) * 1.0
+    if (alpha  == 0):
+        return [0.0, 0.0]
     return [val/alpha for val in factor.values]
 #>>>Your implementation above
 

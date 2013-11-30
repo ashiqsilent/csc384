@@ -5,8 +5,8 @@ from example_bn import *
 #Using Bayes net ``testQ4'' (see example_bn.py)
 
 ###(a) What is the probablity of S given G='g'?
-G.set_evidence('g')
-print VE(testQ4, S, [G], min_fill_ordering)
+B.set_evidence('b')
+print VE(testQ4, G, [B], min_fill_ordering)
 #>>>[1.0, 0.0]
 ##That is, P(s|g) = 1.0, P(-s|g) = 0.0
 
