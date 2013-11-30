@@ -399,18 +399,21 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
         if len(factors_to_change) > 1:
             # join the factors first and then sum out the variables
             new_factor = join_factors(factors_to_change)
-            new_factor = sum_out_factor(new_factor, var)
+            new_factor = sum_out_factors(new_factor, var)
         elif len(factors_to_change) == 1:
             # no need to join because there is only one factor so just sum out 
             # the variable 
-            new_factor = sum_out_factor(factors_to_change)
+            new_factor = sum_out_factors(factors_to_change[0], var)
         # Remove the factors that were changed
         [factors.remove(f) for f in factors_to_change]
         # Add the new factor in factors
-        factors.append()
-    factors = join_factors(factors)
-    alpha = sum(factors) * 1.0
-    return [val / alpha for val in factors]
+        factors.append(new_factor)
+    # join the remaining factors
+    factor = join_factors(factors)
+    # normalise the result
+    return factor.values
+    alpha = sum(factor.values) * 1.0
+    return [val/alpha for val in factor.values]
 #>>>Your implementation above
 
 #Advice: Define a collection of helper functions for generating new factors
@@ -507,9 +510,33 @@ def product(factors):
 
 ##################sum_out_factor########################
 
-def sum_out_factors(factors, var):
-    
+def sum_out_factors(factor, var):
+    scope = factor.get_scope()
+    scope.remove(var)
+    name = ""
+    for v in factor.get_scope():
+        name += v.name + ","
+    name = name.strip(",")
+    name = "P({})".format(name)
+    new_factor = Factor(name, scope)
+    recursive_sum_out_factors(scope, new_factor, factor, var)
+    return new_factor
 
+def recursive_sum_out_factors(variables, factor, old_factor, var):
+    if len(variables) == 0:
+        for v in factor.scope:
+            factor.add_value_at_current_assignment(add(old_factor, var))
+    else:
+        for val in variables[0].domain():
+            variables[0].set_assignment(val)
+            recursive_sum_out_factors(variables[1:], factor, old_factor, var)   
+
+def add(factor, var):
+    result = 0
+    for val in var.domain():
+        var.set_assignment(val)
+        result += factor.get_value_at_current_assignments()
+    return result
 ###################common helpers####################### 
 
 def find_factors(factors, var):
