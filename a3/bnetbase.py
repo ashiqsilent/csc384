@@ -1,3 +1,6 @@
+# Name : Md Ashiqur Rahman
+# Student Number : 998419242
+
 '''Classes for variable elimination Routines 
    A) class Variable
       This class allows one to define Bayes Net variables.
@@ -384,6 +387,30 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
 
 #<<<Your implementation below
 
+    factors = Net.factors()
+    order = Net.variables()
+    # restrict factors by evidence variables
+    restrict_factors(factors, EvidenceVars)
+    # get the elimination order
+    order = orderingFn(factors, QueryVar)
+    for var in order:
+        # get all the factors whose scope contains var
+        factors_to_change = find_factors(factors, var)
+        if len(factors_to_change) > 1:
+            # join the factors first and then sum out the variables
+            new_factor = join_factors(factors_to_change)
+            new_factor = sum_out_factor(new_factor, var)
+        elif len(factors_to_change) == 1:
+            # no need to join because there is only one factor so just sum out 
+            # the variable 
+            new_factor = sum_out_factor(factors_to_change)
+        # Remove the factors that were changed
+        [factors.remove(f) for f in factors_to_change]
+        # Add the new factor in factors
+        factors.append()
+    factors = join_factors(factors)
+    alpha = sum(factors) * 1.0
+    return [val / alpha for val in factors]
 #>>>Your implementation above
 
 #Advice: Define a collection of helper functions for generating new factors
@@ -398,4 +425,98 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
 #
 #        Further hint. Look carefully at add/get_value_at_current_assignment 
 #        These routines provide a convenient way to index into a factor for
-#        setting/getting its values at particular variable assignments. 
+#        setting/getting its values at particular variable assignments.
+
+
+##################restrict_factors#############################
+
+def restrict_factors(factors, evidenceVars):
+    '''Restrict all the factors in factors by the evidence in the evidenceVars. 
+    Modify factors instead of returning it.'''    
+    for f in factors:
+        # determine whether f has any evidence variable. If yes, then get the 
+        # evidence variable(s) present in f
+        evidence = find_evidence(f.get_scope(), evidenceVars)
+        if (evidence):
+            new_factor = restrict_factors_helper(f, evidence)
+            factors[factors.index(f)] = new_factor
+              
+def restrict_factors_helper(factor, evidence):
+    '''Return a new factor object by changing the given factor according to the 
+    evidence'''      
+    scope = factor.get_scope()
+    name = factor.name
+    for e in evidence:
+        scope.remove(e)
+        e.set_assignment(e.get_evidence())
+        name = name.replace(repr(e), e.get_evidence())
+    new_factor = Factor(name, scope)
+    recursive_restrict_variable(scope, new_factor, factor)
+    return new_factor
+
+def recursive_restrict_variable(variables, factor, old_factor):
+    '''Recursively add values in factor fron old_factor. This is similar
+    to Factor.recursive_print_values'''
+    if len(variables) == 0:
+        for v in factor.scope:
+            factor.add_value_at_current_assignment(old_factor.get_value_at_current_assignments())
+    else:
+        for val in variables[0].domain():
+            variables[0].set_assignment(val)
+            recursive_restrict_variable(variables[1:], factor, old_factor)    
+
+def find_evidence(variables, evidenceVars):
+    '''Return the variables that are common in variables and evidenceVars'''
+    result = []
+    for e in evidenceVars:
+        for var in variables:
+            if e == var:
+                result.append(e)
+    return result
+
+###################join factors##########################
+
+def join_factors(factors):
+    scope = []
+    name = ""
+    for f in factors:
+        for v in f.get_scope():
+            if v not in scope:
+                name += v.name + ","
+                scope.append(v)
+    name = name.strip(",")
+    name = "P({})".format(name)
+    new_factor = Factor(name, scope)
+    recursive_join_factors(scope, new_factor, factors)
+    return new_factor
+
+def recursive_join_factors(variables, factor, factors):
+    if len(variables) == 0:
+        for v in factor.scope:
+            factor.add_value_at_current_assignment(product(factors))
+    else:
+        for val in variables[0].domain():
+            variables[0].set_assignment(val)
+            recursive_join_factors(variables[1:], factor, factors)      
+
+def product(factors):
+    result = 1
+    for f in factors:
+        result *= f.get_value_at_current_assignments()
+    return result
+
+##################sum_out_factor########################
+
+def sum_out_factors(factors, var):
+    
+
+###################common helpers####################### 
+
+def find_factors(factors, var):
+    '''Return a list of factor from factors whose factor constains var in their 
+    scope'''    
+    result = []
+    for f in factors:
+        if var in f.get_scope():
+            result.append(f)
+    return result
