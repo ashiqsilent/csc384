@@ -408,7 +408,8 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
             #only one factor. so just sum out variable
             if factors_to_change[0].get_scope() > 1:
                 new_factor = sum_out_factors(factors_to_change[0], var)
-                flag = True                
+                if (new_factor): # check if the scope is wiped out
+                    flag = True                
         # Remove the factors that were changed
         [factors.remove(f) for f in factors_to_change]
         if (flag):
@@ -417,8 +418,14 @@ def VE(Net, QueryVar, EvidenceVars, orderingFn):
     # join the remaining factors
     if len(factors) > 1:
         factor = join_factors(factors)
-    else:
+    elif len(factors) == 1:
         factor = factors[0]
+    else:
+        # something wrong with my code above
+        factor = []
+    # safety guard
+    if not factor:
+        return [0.0, 0.0]
     # normalise the result
     alpha = sum(factor.values) * 1.0
     if (alpha  == 0):
@@ -527,6 +534,8 @@ def product(factors):
 def sum_out_factors(factor, var):
     scope = factor.get_scope()
     scope.remove(var)
+    if not (scope):
+        return []
     name = ""
     for v in factor.get_scope():
         name += v.name + ","

@@ -6,7 +6,7 @@ from example_bn import *
 
 ###(a) What is the probablity of S given G='g'?
 B.set_evidence('b')
-print VE(testQ4, G, [B], min_fill_ordering)
+print VE(testQ4, E, [B], min_fill_ordering)
 #>>>[1.0, 0.0]
 ##That is, P(s|g) = 1.0, P(-s|g) = 0.0
 
